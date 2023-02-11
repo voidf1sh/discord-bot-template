@@ -3,8 +3,7 @@
 // dotenv for handling environment variables
 const dotenv = require('dotenv');
 dotenv.config();
-const token = process.env.TOKEN;
-const statusChannelId = process.env.statusChannelId;
+const token = process.env.TOKEN;;
 
 // Discord.JS
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
@@ -24,7 +23,8 @@ const client = new Client({
 // Various imports
 const fn = require('./modules/functions.js');
 const strings = require('./data/strings.json');
-const isDev = process.env.isDev;
+const isDev = process.env.DEBUG;
+const statusChannelId = process.env.STATUSCHANNELID
 
 client.once('ready', () => {
 	fn.collections.slashCommands(client);
@@ -45,10 +45,6 @@ client.on('interactionCreate', async interaction => {
 			interaction.reply('Sorry, I don\'t have access to that command.');
 			console.error('Slash command attempted to run but not found: /' + commandName);
 		}
-	}
-
-	if (interaction.isButton() && interaction.component.customId == 'refresh') {
-		fn.refresh(interaction);
 	}
 });
 

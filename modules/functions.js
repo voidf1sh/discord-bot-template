@@ -2,7 +2,7 @@
 // dotenv for handling environment variables
 const dotenv = require('dotenv');
 dotenv.config();
-const isDev = process.env.isDev;
+const isDev = process.env.DEBUG;
 
 // filesystem
 const fs = require('fs');
@@ -13,7 +13,6 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = Discord;
 
 // Various imports from other files
 const config = require('../data/config.json');
-let guildInfo = require('../data/guildInfo.json');
 const strings = require('../data/strings.json');
 const slashCommandFiles = fs.readdirSync('./slash-commands/').filter(file => file.endsWith('.js'));
 
@@ -75,18 +74,6 @@ const functions = {
 			const messageContents = { embeds: [embed], ephemeral: true };
 			return messageContents;
 		}
-	},
-	refresh(interaction) {
-		functions.rankings.parse(interaction).then(r1 => {
-			functions.tree.parse(interaction).then(r2 => {
-				const embed = functions.builders.comparisonEmbed(functions.rankings.compare(interaction), functions.builders.refreshAction())
-				interaction.update(embed);
-			}).catch(e => {
-				interaction.reply(functions.builders.errorEmbed(e));
-			});
-		}).catch(e => {
-			interaction.reply(functions.builders.errorEmbed(e));
-		});
 	}
 };
 
