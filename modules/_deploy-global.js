@@ -4,7 +4,7 @@ dotenv.config();
 
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const clientId = process.env.clientId;
+const clientId = process.env.CLIENTID;
 const token = process.env.TOKEN;
 const fs = require('fs');
 
@@ -18,7 +18,7 @@ for (const file of commandFiles) {
 	}
 }
 
-console.log(commands);
+// console.log(commands);
 
 const rest = new REST({ version: '9' }).setToken(token);
 
