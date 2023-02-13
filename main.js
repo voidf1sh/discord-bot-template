@@ -6,32 +6,25 @@ dotenv.config();
 const token = process.env.TOKEN;;
 
 // Discord.JS
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({
 	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.GuildMessageReactions,
-		GatewayIntentBits.MessageContent
-	],
-	partials: [
-		Partials.Channel,
-		Partials.Message
-	],
+		GatewayIntentBits.Guilds
+	]
 });
 
 // Various imports
 const fn = require('./modules/functions.js');
 const strings = require('./data/strings.json');
-const isDev = process.env.DEBUG;
+const debugMode = process.env.DEBUG;
 const statusChannelId = process.env.STATUSCHANNELID
 
 client.once('ready', () => {
-	fn.collections.slashCommands(client);
+	fn.collectionBuilders.slashCommands(client);
 	console.log('Ready!');
-	client.channels.fetch(statusChannelId).then(channel => {
-		channel.send(`${new Date().toISOString()} -- Ready`);
-	});
+	// client.channels.fetch(statusChannelId).then(channel => {
+	// 	channel.send(`${new Date().toISOString()} -- Ready`).catch(e => console.error(e));
+	// });
 });
 
 // slash-commands
@@ -40,12 +33,16 @@ client.on('interactionCreate', async interaction => {
 		const { commandName } = interaction;
 
 		if (client.slashCommands.has(commandName)) {
-			client.slashCommands.get(commandName).execute(interaction);
+			client.slashCommands.get(commandName).execute(interaction).catch(e => console.error(e));
 		} else {
-			interaction.reply('Sorry, I don\'t have access to that command.');
+			interaction.reply('Sorry, I don\'t have access to that command.').catch(e => console.error(e));
 			console.error('Slash command attempted to run but not found: /' + commandName);
 		}
 	}
+});
+
+process.on('uncaughtException', err => {
+	console.error(err);
 });
 
 client.login(token);

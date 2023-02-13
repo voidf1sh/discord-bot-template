@@ -2,24 +2,25 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const clientId = process.env.clientId;
-const { guildId } = require('../data/config.json');
+const { REST, Routes } = require('discord.js');
+const botId = process.env.BOTID;
 const token = process.env.TOKEN;
+const fs = require('fs');
 
-const rest = new REST({ version: '9' }).setToken(token);
+console.log(`Token: ...${token.slice(-5)} | Bot ID: ${botId}`);
+
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
 	try {
-		console.log('Started refreshing application (/) commands.');
+		console.log('Started clearing global application (/) commands.');
 
 		await rest.put(
-			Routes.applicationGuildCommands(clientId, guildId),
+			Routes.applicationCommands(botId),
 			{ body: '' },
 		);
 
-		console.log('Successfully reloaded application (/) commands.');
+		console.log('Successfully cleared global application (/) commands.');
 		process.exit();
 	} catch (error) {
 		console.error(error);

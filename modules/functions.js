@@ -1,24 +1,22 @@
-/* eslint-disable comma-dangle */
-// dotenv for handling environment variables
+// dotenv for importing environment variables
 const dotenv = require('dotenv');
-dotenv.config();
-const isDev = process.env.DEBUG;
-
-// filesystem
 const fs = require('fs');
+// Configure Environment Variables
+dotenv.config();
 
 // Discord.js
 const Discord = require('discord.js');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = Discord;
 
 // Various imports from other files
+const debugMode = process.env.DEBUG;
 const config = require('../data/config.json');
 const strings = require('../data/strings.json');
 const slashCommandFiles = fs.readdirSync('./slash-commands/').filter(file => file.endsWith('.js'));
 
 const functions = {
 	// Functions for managing and creating Collections
-	collections: {
+	collectionBuilders: {
 		// Create the collection of slash commands
 		slashCommands(client) {
 			if (!client.slashCommands) client.slashCommands = new Discord.Collection();
@@ -29,50 +27,52 @@ const functions = {
 					client.slashCommands.set(slashCommand.data.name, slashCommand);
 				}
 			}
-			if (isDev) console.log('Slash Commands Collection Built');
+			if (debugMode) console.log('Slash Commands Collection Built');
 		}
 	},
 	builders: {
-		refreshAction() {
-			// Create the button to go in the Action Row
-			const refreshButton = new ButtonBuilder()
-				.setCustomId('refresh')
-				.setLabel('Refresh')
-				.setStyle(ButtonStyle.Primary);
-			// Create the Action Row with the Button in it, to be sent with the Embed
-			const refreshActionRow = new ActionRowBuilder()
-				.addComponents(
-					refreshButton
-				);
-			return refreshActionRow;
+		actionRows: {
+			example() {
+				// Create the button to go in the Action Row
+				const exampleButton = this.buttons.exampleButton();
+				// Create the Action Row with the Button in it, to be sent with the Embed
+				return new ActionRowBuilder()
+					.addComponents(exampleButton);
+			},
+			buttons: {
+				exampleButton() {
+					return new ButtonBuilder()
+						.setCustomId('id')
+						.setLabel('Label')
+						.setStyle(ButtonStyle.Primary);
+				}
+			}
 		},
-		helpEmbed(content, private) {
-			const embed = new EmbedBuilder()
-				.setColor(strings.embeds.color)
-				.setTitle('Grow A Tree Analyzer Help')
-				.setDescription(content)
-				.setFooter({ text: strings.embeds.footer });
-			const privateBool = private == 'true';
-			const messageContents = { embeds: [embed], ephemeral: privateBool };
-			return messageContents;
-		},
-		errorEmbed(content) {
-			const embed = new EmbedBuilder()
-				.setColor(0xFF0000)
-				.setTitle('Error!')
-				.setDescription(content)
-				.setFooter({ text: strings.embeds.footer });
-			const messageContents = { embeds: [embed], ephemeral: true };
-			return messageContents;
-		},
-		embed(content) {
-			const embed = new EmbedBuilder()
-				.setColor(0x8888FF)
-				.setTitle('Information')
-				.setDescription(content)
-				.setFooter({ text: strings.embeds.footer });
-			const messageContents = { embeds: [embed], ephemeral: true };
-			return messageContents;
+		embeds: {
+			help(private) {
+				const embed = new EmbedBuilder()
+					.setColor(strings.embeds.color)
+					.setTitle(strings.help.title)
+					.setDescription(strings.help.content)
+					.setFooter({ text: strings.help.footer });
+				return { embeds: [embed] };
+			},
+			error(content) {
+				const embed = new EmbedBuilder()
+					.setColor(strings.error.color)
+					.setTitle(strings.error.title)
+					.setDescription(content)
+					.setFooter({ text: strings.embeds.footer });
+				return { embeds: [embed], ephemeral: true };
+			},
+			info(content) {
+				const embed = new EmbedBuilder()
+					.setColor(strings.embeds.infoColor)
+					.setTitle(strings.embeds.infoTitle)
+					.setDescription(content)
+					.setFooter({ text: strings.embeds.footer });
+				return { embeds: [embed], ephemeral: true };
+			}
 		}
 	}
 };
